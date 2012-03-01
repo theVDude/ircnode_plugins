@@ -5,9 +5,9 @@
 
 var LastFmNode = require('lastfm').LastFmNode;
 var lastfm = new LastFmNode({
-  api_key: 'ba997d09a17f2dbd74584f0db1f998a9',
-  secret: '8292fd830110c48b8f3654f7c0a83426',
-  useragent: 'thebotdudenp/0.1 NP',
+  api_key: 'your API key',
+  secret: 'your secret',
+  useragent: 'appname/#.# MyApp',
 });
 var irc = global.irc;
 
