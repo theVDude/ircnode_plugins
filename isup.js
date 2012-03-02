@@ -19,10 +19,10 @@ var isup_handler = function (act) {
       path: '/' + act.params
     };
 
-    var req = http.request(options, function(res) {
+    var req = http.request(options, function (res) {
       res.setEncoding('utf8');
-      res.on('data', function(chunk) {
-        if(chunk.indexOf('It\'s just you') != -1){
+      res.on('data', function (chunk) {
+        if (chunk.indexOf('It\'s just you') !== -1) {
           irc.privmsg(act.source, 'It\'s up! http://' + act.params);
         } else {
           irc.privmsg(act.source, 'It\'s down!');
@@ -30,7 +30,7 @@ var isup_handler = function (act) {
       });
     });
 
-    req.on('error', function(e) {
+    req.on('error', function (e) {
       console.log('error: ' + e.message);
     });
 
