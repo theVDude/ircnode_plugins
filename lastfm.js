@@ -1,12 +1,13 @@
 // A last.fm nowplaying plugin.
 // Author: thevdude (rb.cubed@gmail.com)
 //
-// npm install lastfm in the plugins folder before using this.
+// `npm install lastfm && npm install inflection` in the plugins folder before using this.
 
 var LastFmNode = require('lastfm').LastFmNode;
+var inflection = require('inflection');
 var lastfm = new LastFmNode({
   api_key: 'your API key',
-  secret: 'your secret',
+  secret: 'your last.fm secret',
   useragent: 'appname/#.# MyApp',
 });
 var irc = global.irc;
@@ -19,30 +20,47 @@ var np_handler = function (act) {
     lfmuser = act.params;
   }
 
-  var request = lastfm.request("user.getRecentTracks", {
+  var trckreq = lastfm.request("user.getRecentTracks", {
     user: lfmuser,
     handlers: {
-      success: function(data) {
-        var trck = data.recenttracks.track[0];
-        var msg = '';
-        // Checks if track is Now Playing
-        if('@attr' in trck){
-          if('nowplaying' in trck['@attr'] && trck['@attr'].nowplaying == 'true'){
-            msg = lfmuser + ' is now playing: ' + trck.artist['#text'] + ' - ' + trck.name;
-          } 
-        }
-        //Otherwise, last played
-        else {
-            msg = lfmuser + ' last played: ' + trck.artist['#text'] + ' - ' + trck.name;
-        }
-        //If album name is there, add that in too
-        if(trck.album['#text'] != ''){
-          msg = msg + ' from the album ' + trck.album['#text'];
-        }
-        //Have the bot say it.
-        irc.privmsg(act.source, msg);        
+      success: function (npdata) {
+        var trck = npdata.recenttracks.track[0];
+        var trckinforeq = lastfm.request("track.getInfo", {
+          username: lfmuser,
+          track: trck.name,
+          artist: trck.artist['#text'],
+          handlers: {
+            success: function (moredata) {
+              var trckinfo = moredata.track;
+              console.log(trck);
+              console.log(moredata);
+              var msg = '';
+              // Checks if track is Now Playing
+              if ('@attr' in trck) {
+                if ('nowplaying' in trck['@attr'] && trck['@attr'].nowplaying === 'true') {
+                  msg = lfmuser + ' is now playing "' + trck.name + '" by ' + trck.artist['#text'];
+                }
+              }
+              //Otherwise, last played
+              else {
+                msg = lfmuser + ' last played "' + trck.name + '" by ' + trck.artist['#text'];
+              }
+              //If album name is there, add that in too
+              if (trck.album['#text'] !== '') {
+                msg = msg + ' -- from the album ' + trck.album['#text'] + ' -- ';
+              }
+              var usrcnt = parseInt(trckinfo.userplaycount, 10) + 1;
+              msg = msg + 'for the ' + inflection.ordinalize(usrcnt.toString()) + ' time.';
+              //Have the bot say it.
+              irc.privmsg(act.source, msg);
+            },
+            error: function (error) {
+              console.log(error);
+            }
+          }
+        });
       },
-      error: function(error) {
+      error: function (error) {
         console.log(error);
       }
     }
