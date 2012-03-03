@@ -32,8 +32,6 @@ var np_handler = function (act) {
           handlers: {
             success: function (moredata) {
               var trckinfo = moredata.track;
-              console.log(trck);
-              console.log(moredata);
               var msg = '';
               // Checks if track is Now Playing
               if ('@attr' in trck) {
@@ -47,11 +45,40 @@ var np_handler = function (act) {
               }
               //If album name is there, add that in too
               if (trck.album['#text'] !== '') {
-                msg = msg + ' -- from the album ' + trck.album['#text'] + ' -- ';
+                msg = msg + ' -- from the album "' + trck.album['#text'] + '" --';
               }
-              var usrcnt = parseInt(trckinfo.userplaycount, 10) + 1;
-              msg = msg + 'for the ' + inflection.ordinalize(usrcnt.toString()) + ' time.';
+              var usrcnt = trckinfo.userplaycount;
+              if (usrcnt !== undefined) {
+                usrcnt = parseInt(usrcnt, 10) + 1;
+              } else {
+                usrcnt = 1;
+              }
+              msg = msg + ' for the ' + inflection.ordinalize(usrcnt.toString()) + ' time.';
               //Have the bot say it.
+              irc.privmsg(act.source, msg);
+              
+              msg = '';
+              //Get `listener`s and `playcount`, calculate `ratio`, and add it to `msg`
+              var listeners = parseInt(trckinfo.listeners, 10);
+              var playcount = parseInt(trckinfo.playcount, 10);
+              var ratio = playcount / listeners;
+              msg = playcount + ' plays by ' + listeners + ' listeners (' + ratio.toFixed(2) + ':1) ::';
+              //If there are no tags, add that to `msg`
+              if (trckinfo.toptags === '\n      ') {
+                console.log('no tags');
+                msg = msg + ' No Tags.';
+              }
+              //If there ARE tags, add the first 4 to `tags[]` and join them with ', ' and add them to `msg`
+              else {
+                var tags = [];
+                msg = msg + ' Top Tags - ';
+                for (var e in trckinfo.toptags.tag) {
+                  if (e < 4) {
+                    tags[e] = trckinfo.toptags.tag[e].name;
+                  }
+                }
+                msg = msg + tags.join(', ');
+              }
               irc.privmsg(act.source, msg);
             },
             error: function (error) {
