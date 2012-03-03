@@ -1,0 +1,12 @@
+If you install a node_module for use with a plugin, keep track of it here.
+
+EXAMPLE MODULE
+├─plugin.js
+└─otherplugin.js
+
+LASTFM
+└─lastfm.js
+
+INFLECTION
+└─lastfm.js
+
