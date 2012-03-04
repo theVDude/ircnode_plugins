@@ -5,9 +5,11 @@
 
 var LastFmNode = require('lastfm').LastFmNode;
 var inflection = require('inflection');
+var Bitly = require('bitly');
+var bitly = new Bitly('bitly username', 'bitly API key');
 var lastfm = new LastFmNode({
-  api_key: 'your API key',
-  secret: 'your last.fm secret',
+  api_key: 'lastfm API key',
+  secret: 'lastfm secret',
   useragent: 'appname/#.# MyApp',
 });
 var irc = global.irc;
@@ -36,13 +38,18 @@ var np_handler = function (act) {
               // Checks if track is Now Playing
               if ('@attr' in trck) {
                 if ('nowplaying' in trck['@attr'] && trck['@attr'].nowplaying === 'true') {
-                  msg = lfmuser + ' is now playing "' + trck.name + '" by ' + trck.artist['#text'];
+                  msg = lfmuser + ' is now playing';
                 }
               }
               //Otherwise, last played
               else {
-                msg = lfmuser + ' last played "' + trck.name + '" by ' + trck.artist['#text'];
+                msg = lfmuser + ' last played';
               }
+              //Check if it's a loved track
+              if (trckinfo.userloved === '1') {
+                msg = msg + ' a loved track,';
+              }
+              msg = msg + ' "' + trck.name + '" by ' + trck.artist['#text'];
               //If album name is there, add that in too
               if (trck.album['#text'] !== '') {
                 msg = msg + ' -- from the album "' + trck.album['#text'] + '" --';
@@ -65,7 +72,6 @@ var np_handler = function (act) {
               msg = playcount + ' plays by ' + listeners + ' listeners (' + ratio.toFixed(2) + ':1) ::';
               //If there are no tags, add that to `msg`
               if (trckinfo.toptags === '\n      ') {
-                console.log('no tags');
                 msg = msg + ' No Tags.';
               }
               //If there ARE tags, add the first 4 to `tags[]` and join them with ', ' and add them to `msg`
@@ -79,7 +85,15 @@ var np_handler = function (act) {
                 }
                 msg = msg + tags.join(', ');
               }
-              irc.privmsg(act.source, msg);
+              if (trck.streamable === '1') {
+                bitly.shorten(trck.url, function (err, response) {
+                  if (err) throw err;
+                  msg = msg + ' :: Stream it at ' + response.data.url;
+                  irc.privmsg(act.source, msg);
+                });
+              } else {
+                irc.privmsg(act.source, msg);
+              }
             },
             error: function (error) {
               console.log(error);
