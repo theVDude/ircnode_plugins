@@ -6,10 +6,10 @@
 var LastFmNode = require('lastfm').LastFmNode;
 var inflection = require('inflection');
 var Bitly = require('bitly');
-var bitly = new Bitly('bitly username', 'bitly API key');
+var bitly = new Bitly('your bitly username', 'your bitly apikey');
 var lastfm = new LastFmNode({
-  api_key: 'lastfm API key',
-  secret: 'lastfm secret',
+  api_key: 'your last.fm API key',
+  secret: 'your last.fm secret',
   useragent: 'appname/#.# MyApp',
 });
 var irc = global.irc;
@@ -107,6 +107,28 @@ var np_handler = function (act) {
     }
   });
 };
+var topten_handler = function (act) {
+  var lfmuser = '';
+  if (act.params.length === 0) {
+    lfmuser = act.nick;
+  } else {
+    lfmuser = act.params;
+  }
+  var inforeq = lastfm.request("user.getTopArtists", {
+    user: lfmuser,
+    handlers: {
+      success: function (usrinfo) {
+        var toparts = [];
+        for (var i in usrinfo.topartists.artist) {
+          if (i < 10) {
+            toparts[i] = usrinfo.topartists.artist[i].name + '(' + usrinfo.topartists.artist[i].playcount + ')';
+          }
+        }
+        irc.privmsg(act.source, lfmuser + '\'s top artists: ' + toparts.join(', '));
+      }
+    }
+  });
+};
 
-exports.name = 'np';
-exports.handler = np_handler;
+exports.name = ['np', 'topten'];
+exports.handler = [np_handler, topten_handler];

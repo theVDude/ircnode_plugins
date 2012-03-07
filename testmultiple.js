@@ -10,18 +10,33 @@ var irc = global.irc;
  * is called when the command is triggered. The developer can choose
  * the structure of the plugin as he/she wishes but a main handler
  * function always needs to be created. */
-var test_handler = function (act) {
+var tester_handler = function (act) {
 
   /* If no parameters are added to the command, we just send 'test'
    * back to the source. */
   if (act.params.length === 0) {
-    irc.privmsg(act.source, 'test');
+    irc.privmsg(act.source, 'tester');
   }
 
   /* If there are parameters, then they are joined into one string
    * and then sent back to the source. */
   else {
-    irc.privmsg(act.source, act.params.join(' '));
+    irc.privmsg(act.source, 'tester: ' + act.params.join(' '));
+  }
+
+};
+var tester2_handler = function (act) {
+
+  /* If no parameters are added to the command, we just send 'test'
+   * back to the source. */
+  if (act.params.length === 0) {
+    irc.privmsg(act.source, 'tester2');
+  }
+
+  /* If there are parameters, then they are joined into one string
+   * and then sent back to the source. */
+  else {
+    irc.privmsg(act.source, 'tester2: ' + act.params.join(' '));
   }
 
 };
@@ -32,10 +47,12 @@ var test_handler = function (act) {
  * if the plugin is named 'test', then '!test' will trigger it and the
  * '!enable test' and '!disable test' commands by admins would enable
  * and disable them, respectively. Disabling a plugin includes deataching
- * it from the event emitter.
+ * it from the event emitter. These must be in an array for it to work
+ * properly with multiple commands. The first name should match with the
+ * first handler, and so on.
  *
  * The 'handler' property is the function that is called when the plugin
  * is triggered. In this example, '!test [PARAMS]' would call the
  * 'test_handler (act)' function. */
-exports.name = ['test'];
-exports.handler = [test_handler];
+exports.name = ['tester', 'tester2'];
+exports.handler = [tester_handler, tester2_handler];
