@@ -4,7 +4,7 @@
 // `npm install bitly` in the plugins folder before using this.
 
 var Bitly = require('bitly');
-var bitly = new Bitly('your bitly username', 'your bitly API key');
+var bitly = new Bitly('bitly username', 'bitly api_key');
 var irc = global.irc;
 
 var bitly_handler = function (act) {

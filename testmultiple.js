@@ -47,9 +47,7 @@ var tester2_handler = function (act) {
  * if the plugin is named 'test', then '!test' will trigger it and the
  * '!enable test' and '!disable test' commands by admins would enable
  * and disable them, respectively. Disabling a plugin includes deataching
- * it from the event emitter. These must be in an array for it to work
- * properly with multiple commands. The first name should match with the
- * first handler, and so on.
+ * it from the event emitter.
  *
  * The 'handler' property is the function that is called when the plugin
  * is triggered. In this example, '!test [PARAMS]' would call the

@@ -39,5 +39,5 @@ var isup_handler = function (act) {
 
 };
 
-exports.name = ['isupper'];
+exports.name = ['isup'];
 exports.handler = [isup_handler];
