@@ -1,7 +1,9 @@
 // A last.fm nowplaying plugin.
 // Author: thevdude (rb.cubed@gmail.com)
 //
-// `npm install lastfm && npm install inflection` in the plugins folder before using this.
+// Node Modules: mongoose, lastfm, bitly
+//
+// Uses mongoDB, more information and installation instructions here: http://www.mongodb.org
 
 var mongoose = require('mongoose'),
   db = mongoose.connect('mongodb://localhost/lastfm'),
